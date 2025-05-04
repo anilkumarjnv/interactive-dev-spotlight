@@ -1,8 +1,8 @@
 
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Github, ChevronRight } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Project {
   id: number;
@@ -17,6 +17,36 @@ interface Project {
 
 const Projects: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const projects = entry.target.querySelectorAll(".project-item");
+            projects.forEach((project, index) => {
+              setTimeout(() => {
+                project.classList.add("appear");
+              }, index * 200);
+            });
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   const projects: Project[] = [
     {
@@ -87,90 +117,90 @@ const Projects: React.FC = () => {
   const displayedProjects = showAll ? projects : projects.filter(p => p.featured);
 
   return (
-    <section id="projects" className="py-20">
-      <h2 className="section-heading">Projects</h2>
+    <section id="projects" className="py-24 md:py-32" ref={sectionRef}>
+      <div className="container mx-auto px-4 md:px-8">
+        <h2 className="section-heading text-center mb-16">Featured Projects</h2>
       
-      <div className="grid gap-10 md:gap-24">
-        {displayedProjects.map((project, index) => (
-          <div 
-            key={project.id} 
-            className={`relative md:grid md:grid-cols-12 md:items-center gap-4 md:gap-10 ${
-              index % 2 === 0 ? '' : 'md:text-right'
-            }`}
-          >
-            {/* Project Image (background on mobile, right side on desktop for even indexes) */}
+        <div className="space-y-32">
+          {displayedProjects.map((project, index) => (
             <div 
-              className={`hidden md:block md:col-span-7 relative rounded overflow-hidden ${
-                index % 2 === 0 ? 'md:order-2' : 'md:order-1'
+              key={project.id} 
+              className={`project-item fade-in-up relative overflow-hidden ${
+                index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
               }`}
+              style={{ "--stagger-delay": `${index * 0.2}s` } as any}
             >
-              <div className="aspect-video bg-navy-light relative group">
-                <div className="absolute inset-0 bg-teal/20 group-hover:bg-transparent transition-all duration-300 z-10"></div>
-                <div className="absolute inset-0 flex items-center justify-center text-slate">
-                  Project Image
+              {/* Large project card with hover effect */}
+              <div className="flex flex-col md:flex-row items-center">
+                {/* Image side */}
+                <div className={`w-full md:w-7/12 ${index % 2 === 0 ? 'md:pr-6' : 'md:order-2 md:pl-6'}`}>
+                  <div className="relative group hover-scale overflow-hidden rounded-xl">
+                    <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden">
+                      <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-200 flex items-center justify-center">
+                        <p className="text-gray-400">Project Screenshot</p>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                </div>
+                
+                {/* Content side */}
+                <div className={`w-full md:w-5/12 mt-6 md:mt-0 ${index % 2 === 0 ? 'md:order-2 md:pl-6' : 'md:pr-6'}`}>
+                  <div className="space-y-4">
+                    <h3 className="title-text text-slate-900">{project.title}</h3>
+                    <p className="body-text">{project.description}</p>
+                    
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {project.tech.map(tech => (
+                        <span 
+                          key={tech} 
+                          className="px-3 py-1 bg-gray-100 rounded-full text-sm text-slate-700"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-4 pt-4">
+                      {project.github && (
+                        <a 
+                          href={project.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-slate-700 hover:text-primary transition-colors"
+                          aria-label="GitHub Repository"
+                        >
+                          <Github size={22} />
+                        </a>
+                      )}
+                      {project.external && (
+                        <a 
+                          href={project.external}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-slate-700 hover:text-primary transition-colors"
+                          aria-label="Live Demo"
+                        >
+                          <ExternalLink size={22} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
-            {/* Project Content */}
-            <div className={`md:col-span-7 md:col-start-1 md:row-start-1 z-10 ${
-              index % 2 === 0 ? 'md:order-1 md:col-span-6 md:col-start-1' : 'md:order-2 md:col-span-6 md:col-start-7'
-            }`}>
-              <div className="bg-navy-light p-6 md:p-0 rounded-lg md:bg-transparent">
-                <p className="font-mono text-teal text-sm mb-1">Featured Project</p>
-                <h3 className="text-2xl font-semibold text-slate-lightest mb-4">{project.title}</h3>
-                
-                <div className="bg-navy-light p-6 rounded-lg shadow-xl mb-4 md:mb-5">
-                  <p className="text-slate">{project.description}</p>
-                </div>
-                
-                <ul className={`flex flex-wrap text-xs gap-x-3 gap-y-2 font-mono text-slate mb-4 ${
-                  index % 2 === 0 ? '' : 'md:justify-end'
-                }`}>
-                  {project.tech.map(tech => (
-                    <li key={tech}>{tech}</li>
-                  ))}
-                </ul>
-                
-                <div className={`flex gap-4 ${
-                  index % 2 === 0 ? '' : 'md:justify-end'
-                }`}>
-                  {project.github && (
-                    <a 
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-slate-lightest hover:text-teal transition-colors"
-                    >
-                      <Github size={20} />
-                    </a>
-                  )}
-                  {project.external && (
-                    <a 
-                      href={project.external}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-slate-lightest hover:text-teal transition-colors"
-                    >
-                      <ExternalLink size={20} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      <div className="flex justify-center mt-16">
-        <Button
-          variant="outline"
-          className="border-teal text-teal hover:bg-navy-light"
-          onClick={() => setShowAll(!showAll)}
-        >
-          {showAll ? "Show Less" : "View More Projects"}
-          <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
+          ))}
+        </div>
+        
+        <div className="flex justify-center mt-20">
+          <Button
+            onClick={() => setShowAll(!showAll)}
+            className="apple-button-secondary group"
+          >
+            {showAll ? "View Less" : "View More Projects"}
+            <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </div>
       </div>
     </section>
   );

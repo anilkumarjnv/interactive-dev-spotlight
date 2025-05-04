@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Pro+Display:wght@300;400;500;600;700&family=SF+Pro+Text:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,35 +7,35 @@
 
 @layer base {
   :root {
-    --background: 226 83% 12%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
 
-    --card: 226 70% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
 
-    --popover: 226 70% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 171 100% 70%;
-    --primary-foreground: 226 83% 12%;
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 228 22% 55%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
 
-    --muted: 228 18% 40%;
-    --muted-foreground: 228 39% 80%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
 
-    --accent: 228 18% 25%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 228 18% 25%;
-    --input: 228 18% 25%;
-    --ring: 171 100% 70%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 211 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
   }
 
   * {
@@ -44,21 +44,19 @@
   }
 
   body {
-    @apply bg-navy text-slate-lightest font-sans antialiased;
+    @apply bg-white text-slate-900 font-sans antialiased overflow-x-hidden;
   }
 
   .section-heading {
-    @apply flex items-center gap-2 text-2xl font-semibold text-slate-lightest mb-8;
+    @apply flex items-center text-3xl font-semibold text-slate-900 mb-12 relative;
   }
   
   .section-heading::before {
-    @apply text-teal font-mono text-lg font-normal;
-    counter-increment: section;
-    content: "0" counter(section) ".";
+    @apply hidden;
   }
   
   .section-heading::after {
-    @apply bg-navy-lightest h-px w-52 sm:w-72 md:w-96 ml-4 content-[''];
+    @apply hidden;
   }
 
   /* Custom scrollbar */
@@ -67,14 +65,71 @@
   }
   
   ::-webkit-scrollbar-track {
-    background: var(--navy-light);
+    @apply bg-gray-100;
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-navy-lightest rounded-full;
+    @apply bg-gray-300 rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate;
+    @apply bg-gray-400;
+  }
+
+  /* Apple-inspired text styles */
+  .display-text {
+    @apply font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-medium tracking-tight;
+  }
+
+  .headline-text {
+    @apply font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight;
+  }
+
+  .title-text {
+    @apply font-display text-2xl sm:text-3xl md:text-4xl font-medium;
+  }
+
+  .body-text {
+    @apply font-text text-lg leading-relaxed text-slate-600;
+  }
+
+  /* Animation classes */
+  .fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in-up.appear {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .stagger-item {
+    transition-delay: var(--stagger-delay);
+  }
+
+  .parallax-scroll {
+    will-change: transform;
+  }
+}
+
+@layer components {
+  .apple-button {
+    @apply rounded-full bg-primary px-8 py-4 text-white font-medium transition-all 
+           hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20 focus:ring-2 focus:ring-primary/20;
+  }
+
+  .apple-button-secondary {
+    @apply rounded-full bg-secondary px-8 py-4 text-secondary-foreground font-medium transition-all
+           hover:bg-secondary/90 hover:shadow-sm focus:ring-2 focus:ring-secondary/20;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-[1.03];
+  }
+  
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20;
   }
 }

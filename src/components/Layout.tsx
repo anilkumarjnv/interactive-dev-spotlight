@@ -9,26 +9,67 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
-    // Simulate loading time
+    // Loading animation
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
     
-    return () => clearTimeout(timer);
+    // Scroll animation handler
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+      
+      // Animate elements as they come into view
+      const fadeElements = document.querySelectorAll(".fade-in-up");
+      fadeElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const isVisible = (
+          rect.top <= (window.innerHeight * 0.8) &&
+          rect.bottom >= 0
+        );
+        
+        if (isVisible) {
+          el.classList.add("appear");
+        }
+      });
+      
+      // Animate skill progress bars when in view
+      const progressBars = document.querySelectorAll(".skill-progress");
+      progressBars.forEach(bar => {
+        const rect = bar.getBoundingClientRect();
+        const isVisible = (
+          rect.top <= (window.innerHeight * 0.8) &&
+          rect.bottom >= 0
+        );
+        
+        if (isVisible && !bar.classList.contains("appear")) {
+          bar.classList.add("appear");
+          // @ts-ignore
+          bar.style.width = bar.dataset.width || "0%";
+        }
+      });
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
       {isLoading ? (
-        <div className="fixed inset-0 bg-navy flex items-center justify-center z-50">
-          <div className="text-teal text-4xl font-mono animate-pulse">Loading...</div>
+        <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+          <div className="text-primary text-4xl font-display animate-pulse">Loading...</div>
         </div>
       ) : (
         <>
           <Navbar />
-          <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-6xl">
+          <main className="flex-grow">
             {children}
           </main>
           <Footer />

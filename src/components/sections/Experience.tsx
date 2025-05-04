@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, ExternalLink } from "lucide-react";
 
@@ -14,6 +14,9 @@ interface Job {
 }
 
 const Experience: React.FC = () => {
+  const [activeTab, setActiveTab] = useState("");
+  const sectionRef = useRef<HTMLElement>(null);
+  
   const jobs: Job[] = [
     {
       id: "techcorp",
@@ -71,66 +74,90 @@ const Experience: React.FC = () => {
       ],
     },
   ];
-
-  const [activeTab, setActiveTab] = useState(jobs[0].id);
-
+  
+  useEffect(() => {
+    setActiveTab(jobs[0].id);
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("appear");
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+  
   return (
-    <section id="experience" className="py-20">
-      <h2 className="section-heading">Work Experience</h2>
-      
-      <div className="mt-10">
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <div className="flex flex-col md:flex-row gap-4">
-            <TabsList className="md:flex-col h-auto bg-transparent space-x-2 md:space-x-0 md:space-y-1 overflow-x-auto md:overflow-visible md:w-max">
+    <section id="experience" className="py-24 md:py-32 bg-gray-50" ref={sectionRef}>
+      <div className="container mx-auto px-4 md:px-8">
+        <h2 className="section-heading text-center mb-16">Work Experience</h2>
+        
+        <div className="max-w-4xl mx-auto fade-in-up">
+          <Tabs 
+            value={activeTab} 
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="flex w-full overflow-x-auto mb-8 justify-center bg-transparent space-x-2">
               {jobs.map((job) => (
                 <TabsTrigger
                   key={job.id}
                   value={job.id}
-                  className="px-4 py-2 md:py-3 md:px-5 data-[state=active]:bg-navy-light data-[state=active]:text-teal border-b-2 border-transparent data-[state=active]:border-teal md:border-l-2 md:border-b-0 text-left font-mono whitespace-nowrap"
+                  className="px-6 py-3 data-[state=active]:bg-white data-[state=active]:text-primary 
+                            data-[state=active]:shadow-md rounded-full text-slate-600 text-center"
                 >
                   {job.company}
                 </TabsTrigger>
               ))}
             </TabsList>
             
-            <div className="w-full bg-navy-light rounded-lg">
+            <div className="w-full glass-card p-8 md:p-10">
               {jobs.map((job) => (
-                <TabsContent key={job.id} value={job.id} className="px-6 py-8">
+                <TabsContent key={job.id} value={job.id} className="focus-visible:outline-none focus-visible:ring-0">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-xl font-semibold text-slate-lightest">
+                      <h3 className="text-2xl font-medium text-slate-900 mb-1">
                         {job.title}{" "}
-                        <span className="text-teal">@ {job.company}</span>
+                        <span className="text-primary">@ {job.company}</span>
                       </h3>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-slate">
+                      
+                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-slate-600">
                         <div className="flex items-center gap-1.5">
-                          <Calendar size={14} />
+                          <Calendar size={16} />
                           <span>{job.range}</span>
                         </div>
                         <div>{job.location}</div>
+                        {job.url && (
+                          <a 
+                            href={job.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-sm gap-1.5 text-primary hover:underline"
+                          >
+                            <ExternalLink size={16} />
+                            <span>Company Website</span>
+                          </a>
+                        )}
                       </div>
-                      {job.url && (
-                        <a 
-                          href={job.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center text-sm gap-1.5 text-slate hover:text-teal mt-2"
-                        >
-                          <ExternalLink size={14} />
-                          <span>Company Website</span>
-                        </a>
-                      )}
                     </div>
                     
-                    <ul className="space-y-3">
+                    <ul className="space-y-3 ml-5 list-disc marker:text-primary">
                       {job.responsibilities.map((item, i) => (
-                        <li key={i} className="flex gap-2 text-slate">
-                          <span className="text-teal flex-shrink-0">▹</span>
-                          <span>{item}</span>
+                        <li key={i} className="pl-2 text-slate-600">
+                          {item}
                         </li>
                       ))}
                     </ul>
@@ -138,8 +165,8 @@ const Experience: React.FC = () => {
                 </TabsContent>
               ))}
             </div>
-          </div>
-        </Tabs>
+          </Tabs>
+        </div>
       </div>
     </section>
   );

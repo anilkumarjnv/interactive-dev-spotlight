@@ -1,66 +1,120 @@
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Progress } from "@/components/ui/progress";
+
+interface SkillCategory {
+  name: string;
+  skills: Skill[];
+}
 
 interface Skill {
   name: string;
   level: number;
-  category: "frontend" | "backend" | "mobile" | "tools";
 }
 
 const Skills: React.FC = () => {
-  const skills: Skill[] = [
-    { name: "React", level: 95, category: "frontend" },
-    { name: "TypeScript", level: 90, category: "frontend" },
-    { name: "Next.js", level: 85, category: "frontend" },
-    { name: "Tailwind CSS", level: 90, category: "frontend" },
-    { name: "React Native", level: 85, category: "mobile" },
-    { name: "Flutter", level: 75, category: "mobile" },
-    { name: "Swift", level: 70, category: "mobile" },
-    { name: "Node.js", level: 88, category: "backend" },
-    { name: "Express", level: 85, category: "backend" },
-    { name: "MongoDB", level: 80, category: "backend" },
-    { name: "PostgreSQL", level: 80, category: "backend" },
-    { name: "GraphQL", level: 78, category: "backend" },
-    { name: "Docker", level: 75, category: "tools" },
-    { name: "Git", level: 92, category: "tools" },
-    { name: "CI/CD", level: 85, category: "tools" },
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const progressBars = entry.target.querySelectorAll(".skill-progress");
+            progressBars.forEach((bar, index) => {
+              setTimeout(() => {
+                bar.classList.add("appear");
+              }, index * 100);
+            });
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+  
+  const skillCategories: SkillCategory[] = [
+    {
+      name: "Frontend",
+      skills: [
+        { name: "React", level: 95 },
+        { name: "TypeScript", level: 90 },
+        { name: "Next.js", level: 85 },
+        { name: "Tailwind CSS", level: 90 },
+      ]
+    },
+    {
+      name: "Mobile",
+      skills: [
+        { name: "React Native", level: 85 },
+        { name: "Flutter", level: 75 },
+        { name: "Swift", level: 70 },
+      ]
+    },
+    {
+      name: "Backend",
+      skills: [
+        { name: "Node.js", level: 88 },
+        { name: "Express", level: 85 },
+        { name: "MongoDB", level: 80 },
+        { name: "GraphQL", level: 78 },
+      ]
+    },
+    {
+      name: "Tools & DevOps",
+      skills: [
+        { name: "Git", level: 92 },
+        { name: "Docker", level: 75 },
+        { name: "CI/CD", level: 85 },
+      ]
+    }
   ];
-
-  const categories = [
-    { id: "frontend", name: "Frontend" },
-    { id: "backend", name: "Backend" },
-    { id: "mobile", name: "Mobile" },
-    { id: "tools", name: "Tools & DevOps" },
-  ];
-
+  
   return (
-    <section id="skills" className="py-20">
-      <h2 className="section-heading">Skills</h2>
-      
-      <div className="space-y-12">
-        {categories.map((category) => (
-          <div key={category.id} className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-light">{category.name}</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              {skills
-                .filter((skill) => skill.category === category.id)
-                .map((skill) => (
-                  <div key={skill.name} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-mono text-slate-lightest">{skill.name}</span>
-                      <span className="text-slate">{skill.level}%</span>
+    <section id="skills" className="py-24 md:py-32 bg-gray-50" ref={sectionRef}>
+      <div className="container mx-auto px-4 md:px-8">
+        <h2 className="section-heading text-center mb-16">Skills & Technologies</h2>
+        
+        <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+          {skillCategories.map((category, index) => (
+            <div 
+              key={category.name} 
+              className="fade-in-up stagger-item glass-card p-8"
+              style={{ "--stagger-delay": `${index * 0.15}s` } as any}
+            >
+              <h3 className="title-text mb-8 text-center">{category.name}</h3>
+              
+              <div className="space-y-8">
+                {category.skills.map((skill) => (
+                  <div key={skill.name} className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-slate-900">{skill.name}</span>
+                      <span className="text-slate-600 font-medium">{skill.level}%</span>
                     </div>
-                    <Progress
-                      value={skill.level}
-                      className="h-2 bg-navy-light"
-                      indicatorClassName="bg-teal"
-                    />
+                    
+                    <div className="relative h-1 overflow-hidden rounded-full bg-gray-200">
+                      <div 
+                        className="skill-progress absolute h-full bg-primary rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: "0%" }}
+                        data-width={`${skill.level}%`}
+                      ></div>
+                    </div>
                   </div>
                 ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
